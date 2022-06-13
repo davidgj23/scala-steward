@@ -20,14 +20,16 @@ import cats.MonadThrow
 import cats.syntax.all._
 import org.http4s.Request
 import org.scalasteward.core.application.Config.VCSCfg
-import org.scalasteward.core.git.Branch
+import org.scalasteward.core.git.{Branch, Sha1}
 import org.scalasteward.core.util.HttpJsonClient
 import org.scalasteward.core.vcs.VCSApiAlg
 import org.scalasteward.core.vcs.data._
+import org.typelevel.log4cats.Logger
 
 /** https://developer.atlassian.com/bitbucket/api/2/reference/ */
 class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Request[F]])(implicit
                                                                                         client: HttpJsonClient[F],
+                                                                                        logger: Logger[F],
                                                                                         F: MonadThrow[F]
 ) extends VCSApiAlg[F] {
   private val url = new Url(config.apiHost)
@@ -36,18 +38,25 @@ class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Reque
     ???
 
   override def createPullRequest(repo: Repo, data: NewPullRequestData): F[PullRequestOut] = {
-    val payload = CreatePullRequestRequest(
-      Branch(data.head),
-      data.base,
-      data.title,
-      data.body,
-      List(Reviewer("d2d6e9e7-a489-67a9-9969-0bef18f2df99"))
-    )
-    client.postWithBody(url.pullRequests(repo), payload, modify(repo))
+    val payload = CreatePullRequestRequest(data)
+    for{
+      response <- client.postWithBody[PullRequestValue, CreatePullRequestRequest](url.pullRequests(repo), payload, modify(repo))
+    } yield mapToPullRequestOut(response)
   }
 
-  override def getBranch(repo: Repo, branch: Branch): F[BranchOut] =
-    client.get(url.branch(repo, branch), modify(repo))
+  private def mapToBranchOut(branch: BranchResponse): F[BranchOut] = {
+    for{
+      value <- F.fromOption(branch.value.headOption, new Exception("No list to map out"))
+      commit <- F.fromEither(Sha1.from(value.objectId))
+    } yield BranchOut(Branch(value.name), CommitOut(commit))
+  }
+
+  override def getBranch(repo: Repo, branch: Branch): F[BranchOut] = {
+    for{
+      branchResponse <- client.get[BranchResponse](url.branch(repo, branch), modify(repo))
+      branchOut <- mapToBranchOut(branchResponse)
+    } yield branchOut
+  }
 
   override def getRepo(repo: Repo): F[RepoOut] =
     for {
@@ -63,8 +72,16 @@ class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Reque
       repo.defaultBranch
     )
 
-  override def listPullRequests(repo: Repo, head: String, base: Branch): F[List[PullRequestOut]] =
-    client.get(url.listPullRequests(repo), modify(repo))
+  override def listPullRequests(repo: Repo, head: String, base: Branch): F[List[PullRequestOut]] = {
+    for{
+      pullRequestResponse <- client.get[PullRequestResponse](url.listPullRequests(repo, head), modify(repo))
+    } yield pullRequestResponse.value.map(mapToPullRequestOut)
+  }
+
+  private def mapToPullRequestOut(pullRequest: PullRequestValue): PullRequestOut = {
+    val status: PullRequestState = if(pullRequest.status == "active") PullRequestState.Open else PullRequestState.Closed
+    PullRequestOut(pullRequest.url, status, PullRequestNumber(pullRequest.pullRequestId), pullRequest.title)
+  }
 
   override def closePullRequest(repo: Repo, number: PullRequestNumber): F[PullRequestOut] =
     client.post[PullRequestOut](

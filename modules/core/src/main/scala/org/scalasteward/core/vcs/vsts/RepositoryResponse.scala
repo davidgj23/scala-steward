@@ -21,6 +21,6 @@ private[vsts] object RepositoryResponse {
       url <- c.downField("url").as[Uri]
       remoteUrl <- c.downField("remoteUrl").as[Uri]
       defaultBranch <- c.downField("defaultBranch").as[Branch]
-    } yield RepositoryResponse(id, name, url, remoteUrl, defaultBranch.copy(name = defaultBranch.name.replace("refs/", "")))
+    } yield RepositoryResponse(id, name, url, remoteUrl, defaultBranch.copy(name = defaultBranch.name))
   }
 }

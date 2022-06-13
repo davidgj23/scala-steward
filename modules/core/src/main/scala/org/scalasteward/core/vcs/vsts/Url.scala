@@ -24,17 +24,17 @@ private[vsts] class Url(apiHost: Uri) {
   def forks(rep: Repo): Uri =
     repo(rep) / "forks"
 
-  def listPullRequests(rep: Repo): Uri =
-    pullRequests(rep)
+  def listPullRequests(rep: Repo, head: String): Uri =
+    pullRequests(rep).withQueryParam("searchCriteria.sourceRefName", head)
 
   def pullRequests(rep: Repo): Uri =
-    repo(rep) / "pullrequests"
+    (repo(rep) / "pullrequests").withQueryParam("api-version", "6.0")
 
   def pullRequest(rep: Repo, number: PullRequestNumber): Uri =
     repo(rep) / "pullrequests" / number.toString
 
   def branch(rep: Repo, branch: Branch): Uri = {
-    (repo(rep) / "refs").withQueryParam("filter", branch.name )
+    (repo(rep) / "refs").withQueryParam("filter", branch.name.replace("refs/", "") )
   }
 
   def repo(repo: Repo): Uri =
