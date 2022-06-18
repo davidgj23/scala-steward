@@ -25,7 +25,7 @@ private[vsts] class Url(apiHost: Uri) {
     repo(rep) / "forks"
 
   def listPullRequests(rep: Repo, head: String): Uri =
-    pullRequests(rep).withQueryParam("searchCriteria.sourceRefName", head)
+    pullRequests(rep).withQueryParam("searchCriteria.sourceRefName", s"refs/heads/$head")
 
   def pullRequests(rep: Repo): Uri =
     (repo(rep) / "pullrequests").withQueryParam("api-version", "6.0")
@@ -40,9 +40,12 @@ private[vsts] class Url(apiHost: Uri) {
   def repo(repo: Repo): Uri =
     apiHost / "repositories" / repo.repo
 
-  def comments(rep: Repo, number: PullRequestNumber): Uri =
-    pullRequest(rep, number) / "comments"
+  def comments(rep: Repo, number: PullRequestNumber, threadNumber: ThreadNumber): Uri =
+    threads(rep, number) / threadNumber.toString / "comments"
+
+  def threads(rep: Repo, number: PullRequestNumber): Uri =
+    (pullRequest(rep, number) / "threads").withQueryParam("api-version", "6.0")
 
   def decline(rep: Repo, number: PullRequestNumber): Uri =
-    pullRequest(rep, number) / "decline"
+    pullRequest(rep, number).withQueryParam("api-version", "6.0")
 }

@@ -24,12 +24,12 @@ import org.scalasteward.core.git.{Branch, Sha1}
 import org.scalasteward.core.util.HttpJsonClient
 import org.scalasteward.core.vcs.VCSApiAlg
 import org.scalasteward.core.vcs.data._
-import org.typelevel.log4cats.Logger
+//import org.typelevel.log4cats.Logger
 
 /** https://developer.atlassian.com/bitbucket/api/2/reference/ */
 class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Request[F]])(implicit
                                                                                         client: HttpJsonClient[F],
-                                                                                        logger: Logger[F],
+                                                                                        //logger: Logger[F],
                                                                                         F: MonadThrow[F]
 ) extends VCSApiAlg[F] {
   private val url = new Url(config.apiHost)
@@ -84,15 +84,18 @@ class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Reque
   }
 
   override def closePullRequest(repo: Repo, number: PullRequestNumber): F[PullRequestOut] =
-    client.post[PullRequestOut](
-      url.decline(repo, number),
-      modify(repo)
-    )
+    for {
+      response <- client.patchWithBody[PullRequestValue, UpdatePullRequestRequest](url.decline(repo, number), UpdatePullRequestRequest.closePullRequestRequest, modify(repo))
+    } yield mapToPullRequestOut(response)
 
   override def commentPullRequest(
                                    repo: Repo,
                                    number: PullRequestNumber,
                                    comment: String
-                                 ): F[Comment] =
-    ???
+                                 ): F[Comment] = {
+    val payload = CreateThreadRequest(comment)
+    for {
+      _ <- client.postWithBody[CreateThreadResponse, CreateThreadRequest](url.threads(repo, number), payload, modify(repo))
+    } yield Comment(comment)
+  }
 }
