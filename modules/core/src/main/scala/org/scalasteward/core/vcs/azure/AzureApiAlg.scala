@@ -57,16 +57,16 @@ class AzureApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Request[
 
   override def getRepo(repo: Repo): F[RepoOut] =
     for {
-      repo <- client.get[RepositoryResponse](url.repo(repo), modify(repo))
-    } yield mapToRepoOut(repo)
+      response <- client.get[RepositoryResponse](url.repo(repo), modify(repo))
+    } yield mapToRepoOut(response, repo)
 
-  private def mapToRepoOut(repo: RepositoryResponse): RepoOut =
+  private def mapToRepoOut(repositoryResponse: RepositoryResponse, repo: Repo): RepoOut =
     RepoOut(
-      repo.name,
-      UserOut("dgiraldo"), //FIXME: make it a param
+      repositoryResponse.name,
+      UserOut(repo.owner),
       None,
-      repo.remoteUrl,
-      repo.defaultBranch
+      repositoryResponse.remoteUrl,
+      repositoryResponse.defaultBranch
     )
 
   override def listPullRequests(repo: Repo, head: String, base: Branch): F[List[PullRequestOut]] = {
