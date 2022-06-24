@@ -54,7 +54,6 @@ final class EditAlg[F[_]](implicit
       case None =>
         logger.warn("No files found that contain the current version").as(Nil)
       case Some(files) =>
-        files.map(file => logger.info(s"FILES CONTAINING CURRENT VERSION: ${file.pathAsString}"))
         bumpVersion(update, files).flatMap {
           case false => logger.warn("Unable to bump version").as(Nil)
           case true =>
