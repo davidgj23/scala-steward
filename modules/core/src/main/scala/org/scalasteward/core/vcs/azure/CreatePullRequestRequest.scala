@@ -22,8 +22,8 @@ private[azure] object CreatePullRequestRequest {
       data.base.copy(name = s"refs/heads/${data.base.name}"),
       data.title,
       data.body,
-      List(Reviewer("d2d6e9e7-a489-67a9-9969-0bef18f2df99")), //FIXME: Make it a config param
-      data.workItems.map(id => ResourceRef(id))
+      data.reviewers.map(Reviewer.apply),
+      data.workItems.map(ResourceRef.apply)
     )
   }
   implicit val createPullRequestEncoder: Encoder[CreatePullRequestRequest] = deriveEncoder

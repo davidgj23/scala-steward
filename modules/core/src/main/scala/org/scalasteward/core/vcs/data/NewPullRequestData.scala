@@ -34,7 +34,8 @@ final case class NewPullRequestData(
     head: String,
     base: Branch,
     draft: Boolean = false,
-    workItems: List[String]
+    workItems: List[String],
+    reviewers: List[String]
 )
 
 object NewPullRequestData {
@@ -197,7 +198,8 @@ object NewPullRequestData {
       ),
       head = branchName,
       base = data.baseBranch,
-      workItems = data.repoConfig.pullRequests.workItems.getOrElse(List.empty)
+      workItems = data.repoConfig.pullRequests.workItems.getOrElse(List.empty),
+      reviewers = data.repoConfig.pullRequests.reviewers.getOrElse(List.empty)
     )
 
   def updateType(update: Update): String = {
