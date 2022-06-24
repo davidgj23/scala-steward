@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.vcs.vsts
+package org.scalasteward.core.vcs.azure
 
 import org.http4s.Uri
 import org.scalasteward.core.git.Branch
 import org.scalasteward.core.vcs.data.{PullRequestNumber, Repo}
 
-private[vsts] class Url(apiHost: Uri) {
+private[azure] class Url(apiHost: Uri) {
   def forks(rep: Repo): Uri =
     repo(rep) / "forks"
 

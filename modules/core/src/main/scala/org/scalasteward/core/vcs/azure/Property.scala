@@ -1,4 +1,4 @@
-package org.scalasteward.core.vcs.vsts
+package org.scalasteward.core.vcs.azure
 
 trait PropertyMagnet {
   type Value

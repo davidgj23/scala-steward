@@ -21,7 +21,7 @@ import org.http4s.Uri
 import org.scalasteward.core.data.ReleaseRelatedUrl.VersionDiff
 import org.scalasteward.core.data.{ReleaseRelatedUrl, Update, Version}
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.vcs.VCSType.{Bitbucket, BitbucketServer, CopaVsts, GitHub, GitLab}
+import org.scalasteward.core.vcs.VCSType.{Bitbucket, BitbucketServer, Azure, GitHub, GitLab}
 import org.scalasteward.core.vcs.data.Repo
 
 package object vcs {
@@ -34,7 +34,7 @@ package object vcs {
       case GitHub =>
         s"${fork.owner}/${fork.repo}:${updateBranch.name}"
 
-      case GitLab | Bitbucket | BitbucketServer | CopaVsts =>
+      case GitLab | Bitbucket | BitbucketServer | Azure =>
         updateBranch.name
     }
 
@@ -46,7 +46,7 @@ package object vcs {
       case GitHub =>
         s"${fork.owner}:${updateBranch.name}"
 
-      case GitLab | Bitbucket | BitbucketServer | CopaVsts =>
+      case GitLab | Bitbucket | BitbucketServer | Azure =>
         updateBranch.name
     }
 
@@ -102,7 +102,7 @@ package object vcs {
           possibleTags(from).zip(possibleTags(to)).map { case (from1, to1) =>
             VersionDiff((repoUrl / "compare" / s"$to1..$from1").withFragment("diff"))
           }
-        case CopaVsts =>
+        case Azure =>
           possibleTags(from).zip(possibleTags(to)).map { case (from1, to1) =>
             VersionDiff((repoUrl / "diffs" / s"commits?baseVersion=$from1&targetVersion=$to1").withFragment("diff"))
           }
@@ -130,7 +130,7 @@ package object vcs {
       val maybeSegments = repoVCSType.map {
         case GitHub | GitLab             => List("blob", "master")
         case Bitbucket | BitbucketServer => List("master")
-        case CopaVsts => List("main")
+        case Azure => List("main")
       }
 
       maybeSegments.toList.flatMap { segments =>

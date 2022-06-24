@@ -1,11 +1,11 @@
-package org.scalasteward.core.vcs.vsts
+package org.scalasteward.core.vcs.azure
 
 import io.circe.Decoder
 import org.http4s.Uri
 import org.scalasteward.core.git.Branch
 import org.scalasteward.core.util.uri._
 
-final private[vsts] case class RepositoryResponse(
+final private[azure] case class RepositoryResponse(
                                                         id: String,
                                                         name: String,
                                                         url: Uri,
@@ -13,7 +13,7 @@ final private[vsts] case class RepositoryResponse(
                                                         defaultBranch: Branch
                                                       )
 
-private[vsts] object RepositoryResponse {
+private[azure] object RepositoryResponse {
   implicit val decoder: Decoder[RepositoryResponse] = Decoder.instance { c =>
     for {
       id <- c.downField("id").as[String]

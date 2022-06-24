@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.vcs.vsts
+package org.scalasteward.core.vcs.azure
 
 import io.circe.Codec
 import io.circe.generic.extras.semiauto.deriveUnwrappedCodec
