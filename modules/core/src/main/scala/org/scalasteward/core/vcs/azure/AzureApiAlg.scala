@@ -24,13 +24,11 @@ import org.scalasteward.core.git.{Branch, Sha1}
 import org.scalasteward.core.util.HttpJsonClient
 import org.scalasteward.core.vcs.VCSApiAlg
 import org.scalasteward.core.vcs.data._
-//import org.typelevel.log4cats.Logger
 
-/** https://developer.atlassian.com/bitbucket/api/2/reference/ */
-class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Request[F]])(implicit
-                                                                                        client: HttpJsonClient[F],
-                                                                                        //logger: Logger[F],
-                                                                                        F: MonadThrow[F]
+/** https://docs.microsoft.com/en-us/rest/api/azure/devops/git/?view=azure-devops-rest-6.0 */
+class AzureApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Request[F]])(implicit
+                                                                                     client: HttpJsonClient[F],
+                                                                                     F: MonadThrow[F]
 ) extends VCSApiAlg[F] {
   private val url = new Url(config.apiHost)
 

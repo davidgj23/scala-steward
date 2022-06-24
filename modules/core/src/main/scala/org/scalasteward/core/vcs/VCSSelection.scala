@@ -26,7 +26,7 @@ import org.scalasteward.core.vcs.bitbucketserver.BitbucketServerApiAlg
 import org.scalasteward.core.vcs.data.AuthenticatedUser
 import org.scalasteward.core.vcs.github.GitHubApiAlg
 import org.scalasteward.core.vcs.gitlab.GitLabApiAlg
-import org.scalasteward.core.vcs.azure.CopaVstsApiAlg
+import org.scalasteward.core.vcs.azure.AzureApiAlg
 import org.typelevel.ci._
 import org.typelevel.log4cats.Logger
 
@@ -61,8 +61,8 @@ final class VCSSelection[F[_]](config: Config, user: AuthenticatedUser)(implicit
     )
   }
 
-  private def copaVstsApiAlg: CopaVstsApiAlg[F] = {
-    new CopaVstsApiAlg[F](
+  private def azureApiAlg: AzureApiAlg[F] = {
+    new AzureApiAlg[F](
       config.vcsCfg,
       _ => azure.authentication.addCredentials(user)
     )
@@ -74,6 +74,6 @@ final class VCSSelection[F[_]](config: Config, user: AuthenticatedUser)(implicit
       case GitLab          => gitLabApiAlg
       case Bitbucket       => bitbucketApiAlg
       case BitbucketServer => bitbucketServerApiAlg
-      case Azure        => copaVstsApiAlg
+      case Azure           => azureApiAlg
     }
 }
