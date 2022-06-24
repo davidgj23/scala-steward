@@ -51,12 +51,11 @@ class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Reque
     } yield BranchOut(Branch(value.name), CommitOut(commit))
   }
 
-  override def getBranch(repo: Repo, branch: Branch): F[BranchOut] = {
+  override def getBranch(repo: Repo, branch: Branch): F[BranchOut] =
     for{
       branchResponse <- client.get[BranchResponse](url.branch(repo, branch), modify(repo))
       branchOut <- mapToBranchOut(branchResponse)
     } yield branchOut
-  }
 
   override def getRepo(repo: Repo): F[RepoOut] =
     for {
@@ -66,7 +65,7 @@ class CopaVstsApiAlg[F[_]](config: VCSCfg, modify: Repo => Request[F] => F[Reque
   private def mapToRepoOut(repo: RepositoryResponse): RepoOut =
     RepoOut(
       repo.name,
-      UserOut("dgiraldo"),
+      UserOut("dgiraldo"), //FIXME: make it a param
       None,
       repo.remoteUrl,
       repo.defaultBranch

@@ -7,4 +7,5 @@ All lines that do not start with a hyphen and space are ignored.
 #- scala-steward-org/test-repo-2
 #- scala-steward-org/test-repo-2:slash-syntax-2
 #- scala-steward-org/test-repo-2:test-branch
-- copa-ebusiness-solutions-src/booking
+#- copa-ebusiness-solutions-src/booking
+- copa-ebusiness-solutions-src/booking:feature/222203-add-scala-steward-specific-conf-file

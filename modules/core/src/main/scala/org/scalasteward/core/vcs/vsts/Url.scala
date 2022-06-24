@@ -34,7 +34,12 @@ private[vsts] class Url(apiHost: Uri) {
     repo(rep) / "pullrequests" / number.toString
 
   def branch(rep: Repo, branch: Branch): Uri = {
-    (repo(rep) / "refs").withQueryParam("filter", branch.name.replace("refs/", "") )
+    def getBranchName(branch: Branch): String = {
+      if(branch.name.contains("refs/"))
+        branch.name.replace("refs/", "")
+      else "heads/".concat(branch.name)
+    }
+    (repo(rep) / "refs").withQueryParam("filter", getBranchName(branch) )
   }
 
   def repo(repo: Repo): Uri =

@@ -22,7 +22,8 @@ import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.semiauto.deriveConfiguredCodec
 
 final case class PullRequestsConfig(
-    frequency: Option[PullRequestFrequency] = None
+    frequency: Option[PullRequestFrequency] = None,
+    workItems: Option[List[String]] = None
 ) {
   def frequencyOrDefault: PullRequestFrequency =
     frequency.getOrElse(PullRequestsConfig.defaultFrequency)
@@ -43,6 +44,6 @@ object PullRequestsConfig {
   implicit val pullRequestsConfigMonoid: Monoid[PullRequestsConfig] =
     Monoid.instance(
       PullRequestsConfig(),
-      (x, y) => PullRequestsConfig(frequency = x.frequency.orElse(y.frequency))
+      (x, y) => PullRequestsConfig(frequency = x.frequency.orElse(y.frequency), workItems = x.workItems.orElse(y.workItems))
     )
 }
