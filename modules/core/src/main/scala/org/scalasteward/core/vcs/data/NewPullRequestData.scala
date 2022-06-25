@@ -33,7 +33,9 @@ final case class NewPullRequestData(
     body: String,
     head: String,
     base: Branch,
-    draft: Boolean = false
+    draft: Boolean = false,
+    workItems: List[String],
+    reviewers: List[String]
 )
 
 object NewPullRequestData {
@@ -195,7 +197,9 @@ object NewPullRequestData {
         data.repoData.cache.maybeRepoConfigParsingError
       ),
       head = branchName,
-      base = data.baseBranch
+      base = data.baseBranch,
+      workItems = data.repoConfig.pullRequests.workItems.getOrElse(List.empty),
+      reviewers = data.repoConfig.pullRequests.reviewers.getOrElse(List.empty)
     )
 
   def updateType(update: Update): String = {
